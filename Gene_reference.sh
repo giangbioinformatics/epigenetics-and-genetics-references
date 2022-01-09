@@ -1,27 +1,45 @@
-#!/bin/bash
-# Creates a sorted BED file with all transcript TSS locations with the Ensembl transcript id for the name column
-# This script does this for the Mouse vM19 annotaions, but should work just fine with Human GTF as well
+# Section B. Gene's reference postions by chromosome
+# Install tool for input and output to the same file without truncating it
+# sudo apt-get install moreutils
 
-# wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
-# Encode ID transcript
-zcat gencode.v19.annotation.gtf.gz | awk 'OFS="\t" {if ($3=="transcript") {if ($7 == "+") {print $1,$4,$4,$12,".",$7} else {print $1,$5,$5,$12,".",$7}}}' | tr -d '";' | sort -k1,1V -k2,2n > gencode.v19.annotation.tss.bed
-# Gene name
-zcat gencode.v19.annotation.gtf.gz | awk 'OFS="\t" {if ($3=="transcript") {if ($7 == "+") {print $1,$4,$4,$18,".",$7} else {print $1,$5,$5,$18,".",$7}}}' | tr -d '";' | sort -k1,1V -k2,2n > gencode.v19.annotation.tss.bed
-# Combination
-zcat gencode.v19.annotation.gtf.gz |tr -d '";' |awk 'OFS="\t" {if ($3=="gene" && $14=="protein_coding" ) {if ($7 == "+") {print $1,$4,$18} else {print $1,$5,$18}}}' |  sort -k1,1V -k2,2n > bengi.tss
-#Hg38
-# zcat gencode.v19.annotation.gtf.gz |tr -d '";' |awk 'OFS="\t" {if ($3=="gene" && $14=="protein_coding" )
-zcat gencode.v38.annotation.gtf.gz|tr -d '";' |awk 'OFS="\t" {if ($3=="gene" && $12=="protein_coding" ) print $14,$10}'|sort -k1,1 -k2,2n > hg38.txt
+echo $HOME # visual your home dir
+reference="${HOME}/Desktop/CommonData/Gene_reference"
+# hg38
+mkdir -p $reference/Cpg_hg38/reference_gz
+mkdir -p $reference/Cpg_hg38/reference_bed
+# hg19
+mkdir -p $reference/Cpg_hg19/reference_gz
+mkdir -p $reference/Cpg_hg19/reference_bed
+cd $reference
+# Lastest version hg38 download 
+wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_39/gencode.v39.annotation.gtf.gz
+# Lastest version hg19 download
+wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
+# Chromosome size for hg38 and hg19
+wget https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes
+wget https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes
+head -24 hg19.chrom.sizes|sort -k1,1 -k2,2n|sponge hg19.chrom.sizes
+head -24 hg38.chrom.sizes|sort -k1,1 -k2,2n|sponge hg38.chrom.sizes
 
-# Up
-bedtools flank -i gencode.v19.annotation.tss.bed -g hg19.chrom.szcat gencode.v38.annotation.gtf.gz|tr -d '";' |awk 'OFS="\t" {if ($3=="gene" && $12=="protein_coding" ) print $1,$4,$5,$14,0,$7}'|sort -k1,1 -k2,2nizes.txt -l 2000 -r 0 -s > genes.2kb.promoters.bed
-# Both sides
-bedtools flank -i gencode.v19.annotation.tss.bed -g hg19.chrom.sizes.txt -l 2000 -r 0 -s > genes.2kb.promoters.bed
-bedtools flank -i GeneList.bed -g hg19.chrom.sizes.txt -l 10 -r 0 -s|sort -k 1,1 -k2,2n >dmm.bed
+# HG19
+# transcript 
+zcat gencode.v19.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="transcript" && $14=="protein_coding") print $1,$4,$5,$10,$12,".",$7}'|sort -k1,1 -k2,2n  > hg19.v19.transcripts.bed
+# gene 
+zcat gencode.v19.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="gene" && $14=="protein_coding") print $1,$4,$5,$10,$18,".",$7}'|sort -k1,1 -k2,2n > hg19.v19.genes.bed
+# gene TSS
+zcat gencode.v19.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="gene" && $14=="protein_coding") {if ($7 == "+") {print $1,$4,$4,$12,$18,".",$7} else {print $1,$5,$5,$12,$18".",$7}}}' | sort -k1,1 -k2,2n > hg19.v19.tss_genes.bed
+# gene promoter by 500b+/- center by TSS region, do it by yourself or download at wget https://hgdownload.cse.ucsc.edu/goldenpath/hgXX/bigZips/ for 2k 4k promoter region
+bedtools slop -i <( cat hg19.v19.tss_genes.bed|cut -f1-4) -b 500 -g hg19.chrom.sizes |sort -k1,1 -k2,2n > hg19.v19.promoter_genes.bed
 
-cat GeneList.TSS1kb.bed| awk 'OFS="\t" {if ($6=="+"){print $1,$2,$4} else {print $1,$3,$4}}'| sort -k1,1V -k2,2n > TSS.hg19.txt
-zcat
-awk 'NR==FNR {m[$1]=$1; next} {$1=m[$1]; print}' TSS.hg19.txt 25%_high_all.csv
+# HG38
+# transcript 
+zcat gencode.v39.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="transcript" && $14=="protein_coding") print $1,$4,$5,$10,$12,".",$7}'|sort -k1,1 -k2,2n  > hg38.v39.transcripts.bed
+# gene 
+zcat gencode.v39.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="gene" && $12=="protein_coding") print $1,$4,$5,$10,$14,".",$7}'|sort -k1,1 -k2,2n > hg38.v39.genes.bed
+# gene TSS
+zcat gencode.v39.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="gene" && $12=="protein_coding") {if ($7 == "+") {print $1,$4,$4,$12,$14,".",$7} else {print $1,$5,$5,$12,$14".",$7}}}' | sort -k1,1 -k2,2n > hg38.v39.tss_genes.bed
+# gene promoter by 500b+/- center by TSS region, do it by yourself or download at wget https://hgdownload.cse.ucsc.edu/goldenpath/hgXX/bigZips/ for 2k 4k promoter region
+bedtools slop -i <( cat hg19.v19.tss_genes.bed|cut -f1-4) -b 500 -g hg19.chrom.sizes |sort -k1,1 -k2,2n > hg19.v19.promoter_genes.bed
 
 
 awk 'OFS="," {if ($1=="transcript") {if ($7 == "+") {print $1,$4-1,$4,$12,".",$7} else {print $1,$5-1,$5,$12,".",$7}}}' | tr -d '";' | sort -k1,1V -k2,2n > gencode.v19.annotation.tss.bed

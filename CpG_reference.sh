@@ -41,21 +41,6 @@ head -5 EPIC.hg38.bed
 # chr1    15864   15866   cg13869341
 # chr1    18826   18828   cg14008030
 
-# Section B. Gene's reference postions by chromosome
 
-
-echo $HOME # visual your home dir
-reference="${HOME}/Desktop/CommonData/Gene_reference"
-# hg38
-mkdir -p $reference/Cpg_hg38/reference_gz
-mkdir -p $reference/Cpg_hg38/reference_bed
-# hg19
-mkdir -p $reference/Cpg_hg19/reference_gz
-mkdir -p $reference/Cpg_hg19/reference_bed
-cd $reference
-# Lastest version 38 download 
-wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_39/gencode.v39.annotation.gtf.gz
-# Lastest version 37 download
-wget http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
 
 
