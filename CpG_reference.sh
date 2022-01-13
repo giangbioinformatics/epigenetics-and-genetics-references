@@ -2,7 +2,7 @@
 #1. Making reference cpg
 # Create the reference data
 echo $HOME # visual your home dir
-reference="${HOME}/Desktop/CommonData/Cpg_reference"
+reference="${HOME}/Desktop/CommonData/Epigenetics-and-genetics-references/Cpg_reference"
 # hg38
 mkdir -p $reference/Cpg_hg38/
 mkdir -p $reference/Cpg_hg38/reference_gz
