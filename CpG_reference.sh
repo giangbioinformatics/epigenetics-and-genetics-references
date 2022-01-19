@@ -2,7 +2,7 @@
 #1. Making reference cpg
 # Create the reference data
 echo $HOME # visual your home dir
-reference="${HOME}/Desktop/CommonData/Epigenetics-and-genetics-references/Cpg_reference"
+reference="${HOME}/Epigenetics-and-genetics-references/Cpg_reference"
 # hg38
 mkdir -p $reference/Cpg_hg38/
 mkdir -p $reference/Cpg_hg38/reference_gz
@@ -25,13 +25,32 @@ for i in *.gz
 do 
 k=`basename $i .manifest.tsv.gz`
 zcat $i|sed "1d"|cut -f1,2,3,5|awk 'OFS="\t" {if($1!="NA") print $0}'| sort -k1,1 -k2,2n > ${k}.bed
+cat ${k}.bed|awk -v k=$k '{print $0 >> k"_"$1".tsv"}'
+echo "Done for $k"
+done
+
+
+for i in *.gz
+do 
+k=`basename $i .bed`
+cat ${k}.bed|awk -v k=$k '{print $0 >> k"_"$1".tsv"}'
 echo "Done for $k"
 done
 
 mv *hg38*.gz Cpg_hg38/reference_gz/
 mv *hg19*.gz Cpg_hg19/reference_gz/
-mv *hg38.bed Cpg_hg38/reference_bed/
-mv *hg19.bed Cpg_hg19/reference_bed/
+
+# Loop to move files
+for i in HM27 HM450 EPIC
+do
+for k in hg19 hg38
+do
+echo $i.$k
+mkdir -p Cpg_$k/reference_bed/$i/ ; mv *$i"."$k"_chr"* $_ 
+mv $i.$k.bed Cpg_$k/reference_bed/
+done
+done
+
 
 # Check for annotation
 head -5 EPIC.hg38.bed

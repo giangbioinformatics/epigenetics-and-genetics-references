@@ -17,7 +17,7 @@ cat mediator1.bed >> mediator3.bed
 cat mediator3.bed|sort|uniq|sort -k1,1 -k2,2n > ${output_name}.bed
 
 rm mediator1.bed
-rm mediator2.bed
+rm mediator2.bed    
 rm mediator3.bed
 
 mv ${output_name}.bed Examples/

@@ -3,7 +3,7 @@
 # sudo apt-get install moreutils
 
 echo $HOME # visual your home dir
-reference="${HOME}/Desktop/CommonData/Epigenetics-and-genetics-references/Gene_reference"
+reference="${HOME}/Epigenetics-and-genetics-references/Gene_reference"
 # hg38
 mkdir -p $reference/Gene_hg38/reference_gz
 mkdir -p $reference/Gene_hg38/reference_bed
@@ -29,8 +29,8 @@ zcat gencode.v19.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3
 # gene TSS
 zcat gencode.v19.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="gene" && $14=="protein_coding") {if ($7 == "+") {print $1,$4,$4,$12,$18,".",$7} else {print $1,$5,$5,$12,$18,".",$7}}}' | sort -k1,1 -k2,2n > hg19.v19.tss_genes.bed
 # gene promoter by 500b+/- center by TSS region, do it by yourself or download at wget https://hgdownload.cse.ucsc.edu/goldenpath/hgXX/bigZips/ for 2k 4k promoter region
-bedtools slop -i <( cat hg19.v19.tss_genes.bed|cut -f1-4) -b 500 -g hg19.chrom.sizes |sort -k1,1 -k2,2n > hg19.v19.promoter_genes.bed
-
+bedtools slop -i <( cat hg19.v19.tss_genes.bed|cut -f1-3,5) -b 500 -g hg19.chrom.sizes |sort -k1,1 -k2,2n > hg19.v19.promoter_genes.bed
+cat hg19.v19.promoter_genes.bed|awk '{print $0 >> "hg19.v19.promoter_genes_"$1".tsv"}'
 # HG38
 # transcript 
 zcat gencode.v39.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="transcript" && $14=="protein_coding") print $1,$4,$5,$10,$12,".",$7}'|sort -k1,1 -k2,2n  > hg38.v39.transcripts.bed
@@ -39,7 +39,10 @@ zcat gencode.v39.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3
 # gene TSS
 zcat gencode.v39.annotation.gtf.gz |grep -v "#"|tr -d '";'|awk 'OFS="\t" {if ($3=="gene" && $12=="protein_coding") {if ($7 == "+") {print $1,$4,$4,$12,$14,".",$7} else {print $1,$5,$5,$12,$14,".",$7}}}' | sort -k1,1 -k2,2n > hg38.v39.tss_genes.bed
 # gene promoter by 500b+/- center by TSS region, do it by yourself or download at wget https://hgdownload.cse.ucsc.edu/goldenpath/hgXX/bigZips/ for 2k 4k promoter region
-bedtools slop -i <( cat hg38.v39.tss_genes.bed|cut -f1-4) -b 500 -g hg38.chrom.sizes |sort -k1,1 -k2,2n > hg38.v39.promoter_genes.bed
+bedtools slop -i <( cat hg38.v39.tss_genes.bed|cut -f1-3,5) -b 500 -g hg38.chrom.sizes |sort -k1,1 -k2,2n > hg38.v39.promoter_genes.bed
+cat hg38.v39.promoter_genes.bed|awk '{print $0 >> "hg38.v39.promoter_genes_"$1".tsv"}'
+
+
 # Move file to the arranged directories
 mv *19*.gz $reference/Gene_hg19/reference_gz
 mv *3*.gz $reference/Gene_hg38/reference_gz
