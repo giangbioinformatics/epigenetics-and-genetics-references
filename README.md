@@ -7,5 +7,10 @@ For instance, the FOXA1 have variant on the beginning of this gene on promoter r
 
 Reference: http://zwdzwd.github.io/InfiniumAnnotation
 
-## 2. Download example
-wget https://github.com/zhou-lab/InfiniumAnnotationV1/raw/main/Anno/HM27/archive/202209/HM27.hg38.mask.tsv.gz
+## 2. Download directly
+http://zwdzwd.github.io/InfiniumAnnotation
+```
+wget https://github.com/zhou-lab/InfiniumAnnotationV1/raw/main/Anno/HM27/HM27.hg38.manifest.gencode.v36.tsv.gz
+```
+## 3. Limitation:
+The fourth column contains more than one genes because serveral genes have the overlapping regions on promoter. Therefore, it will be better if we split them all to each unique row and each row is only have one unique value.
